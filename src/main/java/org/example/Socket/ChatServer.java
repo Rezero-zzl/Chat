@@ -11,35 +11,52 @@ import java.util.List;
  * @date 2024/1/10 16:51
  */
 public class ChatServer {
-    private Integer port;
-    private List<Socket> clientList;
-    // 初始化
-    public void init(Integer port){
-        this.port = port;
-        clientList = new ArrayList<>();
-    }
+    private List<ClientHandler> clientList = new ArrayList<>();
     // 启动
-    public void start(){
+    public void start(Integer port){
         try(ServerSocket serverSocket = new ServerSocket(port)){
-            System.out.println(String.format("聊天服务启动，监听端口：%",port));
+            System.out.println(String.format("聊天服务启动，监听端口 : %s",port));
             // 监听客户端连接
             while (true){
                 // 服务器主线程监听客户端连接
                 Socket socket = serverSocket.accept();
+                System.out.println(socket);
                 System.out.println(String.format("客户端连接成功"));
+                // 创建聊天客户端处理工具
+                ClientHandler clientHandler = new ClientHandler(this, socket);
                 // 维护客户端列表
-                clientList.add(socket);
-                // 新起线程接收，转发客户端消息 -- 防止其他接收，转发等操作阻塞服务器，导致客户端连接失败
+                clientList.add(clientHandler);
+                // 新起线程异步接收，监听转发客户端消息 -- 防止其他接收，转发等操作阻塞服务器，导致客户端连接失败
+                new Thread(clientHandler).start();
             }
         }catch (Exception e){
-            System.out.println(String.format("服务器监听端口失败 : %",e.getMessage()));
+            System.out.println(String.format("服务器监听端口失败 : %s",e.getMessage()));
         }finally {
             clientList.clear();
         }
     }
 
-    public void forwardMessage(){
+    /**
+     * 转发消息
+     * @param message
+     * @param sender
+     */
+    public void broadcastMessage(String message, ClientHandler sender){
+        // 排除自己,进行转发
+        for(ClientHandler client : clientList){
+            if (client != sender){
+                client.sendMessage(message);
+            }
+        }
+    }
 
+    public void removeClient(ClientHandler client){
+        clientList.remove(client);
+    }
+
+    public static void main(String[] args) {
+        ChatServer chatServer = new ChatServer();
+        chatServer.start(9000);
     }
 
 }
