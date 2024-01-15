@@ -1,5 +1,7 @@
 package org.example.Socket;
 
+import org.example.Nio.NioChatServer;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -8,13 +10,13 @@ import java.net.Socket;
  * @author zzl
  * @date 2024/1/14 18:56
  */
-public class ClientHandler implements Runnable{
-    private ChatServer server;
+public class SocketClientHandler implements Runnable{
+    private SocketChatServer server;
     private Socket clientSocket;
     private BufferedReader reader;
     private PrintWriter writer;
 
-    public ClientHandler(ChatServer server,Socket clientSocket){
+    public SocketClientHandler(SocketChatServer server, Socket clientSocket){
         this.server = server;
         this.clientSocket = clientSocket;
         try {

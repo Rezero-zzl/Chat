@@ -11,7 +11,7 @@ import java.net.Socket;
  * @author zzl
  * @date 2024/1/10 16:51
  */
-public class ChatClient {
+public class SocketChatClient {
     private Socket socket;
     private BufferedReader reader;
     private PrintWriter writer;
@@ -20,7 +20,6 @@ public class ChatClient {
     public void start(String serverAddress,int port){
         try {
             socket = new Socket(serverAddress,port);
-            System.out.println(socket);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream(),true);
             System.out.println(String.format("连接服务器成功，开始聊天吧"));
@@ -48,7 +47,7 @@ public class ChatClient {
     }
 
     public static void main(String[] args) {
-        ChatClient chatClient = new ChatClient();
-        chatClient.start("localhost",9000);
+        SocketChatClient socketChatClient = new SocketChatClient();
+        socketChatClient.start("localhost",9000);
     }
 }
